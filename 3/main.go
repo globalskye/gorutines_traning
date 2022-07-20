@@ -27,10 +27,29 @@ func countDigitsInWords(next nextFunc) counter {
 	// начало решения
 
 	go func() {
+		for {
+			word := next()
+			val := pair{
+				word:  word,
+				count: countDigits(word),
+			}
+
+			counted <- val
+
+		}
+
 		// Пройдите по словам,
 		// посчитайте количество цифр в каждом,
 		// и запишите его в канал counted
 	}()
+
+	stats := make(counter, len(counted))
+	for v := range counted {
+		stats[v.word] = v.count
+		if _, ok := <-counted; !ok {
+			return stats
+		}
+	}
 
 	// Считайте значения из канала counted
 	// и заполните stats.
